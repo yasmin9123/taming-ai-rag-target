@@ -1,2 +1,2 @@
-chromadb
-sentence-transformers
+fastapi
+uvicorn
