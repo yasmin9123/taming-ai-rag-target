@@ -1,0 +1,13 @@
+{
+  "rag_target_id": "TAI-PAC-2026",
+  "name": "Taming AI PACTrans Keynote RAG Target",
+  "schema_version": "1.0.0",
+  "source_sha256": "82df5828b855873cf81f3df5442c6b6a6b36fa8bb155b59adfaf784c4d823b43",
+  "parent_object": "objects/presentation.json",
+  "child_objects": "objects/slides.jsonl",
+  "retrieval_chunks": "chunks/rag_chunks.jsonl",
+  "evidence_register": "evidence/evidence_index.json",
+  "chunking_strategy": "semantic slide-level objects; one retrieval chunk per slide in v1",
+  "embedding_status": "not embedded",
+  "recommended_embedding_input_field": "embedding_text"
+}

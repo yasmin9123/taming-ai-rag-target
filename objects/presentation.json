@@ -1,0 +1,22 @@
+{
+  "object_id": "TAI-PAC-2026",
+  "object_type": "presentation",
+  "title": "Taming AI: Start by Properly Introducing Yourself",
+  "version": "3.8",
+  "event": {
+    "name": "PACTrans Region 10 Student Conference",
+    "location": "Anchorage, AK",
+    "date": "2026-10-10"
+  },
+  "presenter": "Eva Lerner-Lam",
+  "coauthors": [
+    "Hannah Chun",
+    "Yasmin Korin"
+  ],
+  "organization": "Palisades Consulting Group, Inc.",
+  "source": {
+    "file": "source/Taming_AI_Keynote_V3.8.pptx",
+    "sha256": "82df5828b855873cf81f3df5442c6b6a6b36fa8bb155b59adfaf784c4d823b43"
+  },
+  "schema_version": "1.0.0"
+}

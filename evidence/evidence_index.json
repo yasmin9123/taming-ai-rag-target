@@ -1,0 +1,29 @@
+{
+  "evidence_register_id": "TAI-PAC-2026-EVIDENCE",
+  "items": [
+    {
+      "evidence_id": "SRC-PPTX-001",
+      "type": "source_presentation",
+      "path": "source/Taming_AI_Keynote_V3.8.pptx",
+      "sha256": "82df5828b855873cf81f3df5442c6b6a6b36fa8bb155b59adfaf784c4d823b43",
+      "supports": [
+        "TAI-PAC-2026",
+        "TAI-PAC-2026-S01",
+        "TAI-PAC-2026-S02",
+        "TAI-PAC-2026-S03",
+        "TAI-PAC-2026-S04",
+        "TAI-PAC-2026-S05",
+        "TAI-PAC-2026-S06",
+        "TAI-PAC-2026-S07",
+        "TAI-PAC-2026-S08",
+        "TAI-PAC-2026-S09",
+        "TAI-PAC-2026-S10",
+        "TAI-PAC-2026-S11",
+        "TAI-PAC-2026-S12",
+        "TAI-PAC-2026-S13",
+        "TAI-PAC-2026-S14"
+      ]
+    }
+  ],
+  "note": "External links, QR-code destinations, and third-party factual claims are not independently verified by this repository."
+}
