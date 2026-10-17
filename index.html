@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Taming AI RAG Target</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #172033;
+    }
+
+    header {
+      background: #102a43;
+      color: white;
+      padding: 55px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: 2.5rem;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.85;
+      font-size: 1.05rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 7px 12px;
+      background: rgba(255,255,255,0.13);
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+
+    main {
+      width: min(900px, 92%);
+      margin: 40px auto;
+    }
+
+    .search-card {
+      background: white;
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    .search-card h2 {
+      margin-top: 0;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #486581;
+    }
+
+    button {
+      padding: 14px 22px;
+      border: none;
+      background: #1976d2;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #145ca4;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 18px;
+      color: #52606d;
+    }
+
+    #results {
+      margin-top: 30px;
+    }
+
+    .result {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+      border-left: 5px solid #1976d2;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .result h3 {
+      margin: 0 0 7px;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: #627d98;
+      margin-bottom: 14px;
+    }
+
+    .score {
+      background: #e3f2fd;
+      color: #0d47a1;
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .content {
+      line-height: 1.6;
+    }
+
+    .topics {
+      margin-top: 15px;
+    }
+
+    .topic {
+      display: inline-block;
+      background: #edf2f7;
+      border-radius: 999px;
+      padding: 5px 9px;
+      margin: 3px;
+      font-size: 0.78rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 15px;
+      color: #829ab1;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 650px) {
+      .search-row {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Taming AI RAG Target</h1>
+
+    <p>
+      Semantic retrieval for the Taming AI PACTrans 2026 presentation
+    </p>
+
+    <div class="badge">
+      RAG Target: TAI-PAC-2026
+    </div>
+  </header>
+
+  <main>
+
+    <div class="search-card">
+
+      <h2>Search the presentation</h2>
+
+      <p>
+        Ask a natural-language question and retrieve the most relevant
+        verified presentation objects.
+      </p>
+
+      <div class="search-row">
+
+        <input
+          id="query"
+          type="text"
+          placeholder="Example: What is a validated claim?"
+        >
+
+        <button id="searchButton" onclick="searchRAG()">
+          Search
+        </button>
+
+      </div>
+
+      <div id="status"></div>
+
+    </div>
+
+    <div id="results"></div>
+
+  </main>
+
+  <footer>
+    Taming AI · Machine-Readable RAG Target · TAI-PAC-2026
+  </footer>
+
+
+  <script>
+
+    const API_URL =
+      "https://taming-ai-rag-target.onrender.com";
+
+
+    async function searchRAG() {
+
+      const queryInput =
+        document.getElementById("query");
+
+      const query =
+        queryInput.value.trim();
+
+      const status =
+        document.getElementById("status");
+
+      const resultsContainer =
+        document.getElementById("results");
+
+      const button =
+        document.getElementById("searchButton");
+
+
+      if (!query) {
+
+        status.textContent =
+          "Enter a question first.";
+
+        return;
+
+      }
+
+
+      status.textContent =
+        "Searching the RAG target...";
+
+      resultsContainer.innerHTML = "";
+
+      button.disabled = true;
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${API_URL}/search?q=${encodeURIComponent(query)}&k=5`
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `API returned ${response.status}`
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        status.textContent =
+          `Found ${data.results.length} relevant objects.`;
+
+
+        data.results.forEach((result, index) => {
+
+          const card =
+            document.createElement("div");
+
+          card.className =
+            "result";
+
+
+          const topics =
+            (result.topics || [])
+            .map(
+              topic =>
+              `<span class="topic">${escapeHTML(topic)}</span>`
+            )
+            .join("");
+
+
+          card.innerHTML = `
+
+            <div class="result-top">
+
+              <div>
+
+                <h3>
+                  ${index + 1}. ${escapeHTML(result.title || "Untitled")}
+                </h3>
+
+                <div class="meta">
+
+                  Slide ${result.slide ?? "—"}
+
+                  ·
+
+                  ${escapeHTML(result.object_type || "object")}
+
+                  ·
+
+                  ${escapeHTML(result.chunk_id || "")}
+
+                </div>
+
+              </div>
+
+              <div class="score">
+
+                Similarity:
+                ${(Number(result.score) * 100).toFixed(1)}%
+
+              </div>
+
+            </div>
+
+
+            <div class="content">
+
+              ${escapeHTML(result.content || "")}
+
+            </div>
+
+
+            <div class="topics">
+
+              ${topics}
+
+            </div>
+
+          `;
+
+
+          resultsContainer.appendChild(card);
+
+        });
+
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+          "The search service could not be reached. Try again in a moment.";
+
+      }
+
+      finally {
+
+        button.disabled = false;
+
+      }
+
+    }
+
+
+    function escapeHTML(value) {
+
+      const element =
+        document.createElement("div");
+
+      element.textContent =
+        String(value);
+
+      return element.innerHTML;
+
+    }
+
+
+    document
+      .getElementById("query")
+      .addEventListener(
+        "keydown",
+        function(event) {
+
+          if (event.key === "Enter") {
+
+            searchRAG();
+
+          }
+
+        }
+      );
+
+  </script>
+
+</body>
+</html>
