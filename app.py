@@ -3,7 +3,6 @@ import json
 
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sentence_transformers import SentenceTransformer, util
 
 
 app = FastAPI(
@@ -23,20 +22,19 @@ app.add_middleware(
 ROOT = Path(__file__).resolve().parent
 CHUNKS_PATH = ROOT / "chunks" / "rag_chunks.jsonl"
 
+MODEL_NAME = "all-MiniLM-L6-v2"
+
+MODEL = None
+DOCUMENT_EMBEDDINGS = None
+
 
 def load_chunks():
     with CHUNKS_PATH.open("r", encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
 
 
-# Load canonical retrieval chunks
 CHUNKS = load_chunks()
 
-# Semantic embedding model
-MODEL_NAME = "all-MiniLM-L6-v2"
-MODEL = SentenceTransformer(MODEL_NAME)
-
-# Vectorize the presentation once when the server starts
 DOCUMENT_TEXTS = [
     chunk.get(
         "embedding_text",
@@ -45,11 +43,20 @@ DOCUMENT_TEXTS = [
     for chunk in CHUNKS
 ]
 
-DOCUMENT_EMBEDDINGS = MODEL.encode(
-    DOCUMENT_TEXTS,
-    convert_to_tensor=True,
-    normalize_embeddings=True,
-)
+
+def ensure_model_loaded():
+    global MODEL, DOCUMENT_EMBEDDINGS
+
+    if MODEL is None:
+        from sentence_transformers import SentenceTransformer
+
+        MODEL = SentenceTransformer(MODEL_NAME)
+
+        DOCUMENT_EMBEDDINGS = MODEL.encode(
+            DOCUMENT_TEXTS,
+            convert_to_tensor=True,
+            normalize_embeddings=True,
+        )
 
 
 @app.get("/")
@@ -72,6 +79,7 @@ def health():
         "retrieval": "semantic-vector",
         "embedding_model": MODEL_NAME,
         "chunks_loaded": len(CHUNKS),
+        "model_loaded": MODEL is not None,
     }
 
 
@@ -80,26 +88,28 @@ def search(
     q: str = Query(
         ...,
         min_length=2,
-        description="Natural-language semantic search query"
+        description="Natural-language semantic search query",
     ),
     k: int = Query(
         5,
         ge=1,
         le=10,
-        description="Number of results"
+        description="Number of results",
     ),
 ):
-    # Vectorize the user's question
+    from sentence_transformers import util
+
+    ensure_model_loaded()
+
     query_embedding = MODEL.encode(
         q,
         convert_to_tensor=True,
         normalize_embeddings=True,
     )
 
-    # Compare question vector with presentation vectors
     scores = util.cos_sim(
         query_embedding,
-        DOCUMENT_EMBEDDINGS
+        DOCUMENT_EMBEDDINGS,
     )[0]
 
     top_k = min(k, len(CHUNKS))
@@ -109,7 +119,7 @@ def search(
 
     for score, index in zip(
         top_results.values.tolist(),
-        top_results.indices.tolist()
+        top_results.indices.tolist(),
     ):
         chunk = CHUNKS[index]
 
